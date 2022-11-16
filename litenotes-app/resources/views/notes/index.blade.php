@@ -1,18 +1,33 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Notes') }}
+            {{ request()->routeIs('notes.index') ? __('Notes') : __('Trash') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-            <a href="{{ route('notes.create') }} " class="btn-link btn-lg mb-2">+ New Note</a>
-
+            
+            <x-alert-success>
+                {{ session('success') }}
+            </x-alert-success>
+            
+            @if (request()->routeIs('notes.index'))
+                
+                <a href="{{ route('notes.create') }} " class="btn-link btn-lg mb-2">+ New Note</a>
+            @endif
+            
             @forelse ($notes as $note)
 
-                <a href="{{ route('notes.show', $note->id) }}">
+                <a 
+                
+                @if(request()->routeIs('notes.index'))
+                    href="{{ route('notes.show', $note) }}"
+                
+                @else
+                    href="{{ route('trashed.show', $note) }}"
+                @endif
+                >
                     <div class="my-6 p-6 bg-white hover:bg-slate-300 duration-500 ease-in-out border-b border-gray-200 shadow-sm sm:rounded-lg">
                         <h2 class="font-bold text-2xl">
 
@@ -30,8 +45,11 @@
                 </a>
 
             @empty
-            <p>You have no notes yet.</p>
-
+                @if (request()->routeIs('notes.index'))
+                <p>You have no notes yet.</p>
+                @else
+                <p>Trash is empty.</p>
+                @endif
             @endforelse
 
             {{ $notes->links() }}
